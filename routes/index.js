@@ -8,6 +8,8 @@ var id = require('mongodb').id;
 const { stringify } = require('querystring');
 const { count } = require('console');
 
+var passport = require('passport');
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.redirect('/home')
@@ -33,15 +35,44 @@ router.get('/Dashboardview', enSureAuthencated, authRole('Student'), async funct
     const client = new MongoClient(uri);
     await client.connect();
     const users = await client.db('LoginDB').collection('data').findOne({});
-    console.log(users)
-    res.render('Dashboardview', { 'data': users });
+    const activity = await client.db('LoginDB').collection('data').aggregate([{
+            $lookup: {
+                from: 'Log',
+                localField: 'ActivityName',
+                foreignField: 'activity',
+                as: 'logDetail'
+            }
+        },
+        {
+            $group: { _id: { ActivityName: "$ActivityName", startTime: "$startTime", endTime: "$endTime", score: "$score", studenId: "$logDetail.id" } }
+        },
+    ]);
+
+    let userID = req.user.username;
+    let datas = [];
+    for await (const doc of activity) {
+        studentList = doc['_id']['studenId']
+        if (studentList.includes(userID)) {
+            doc['_id']['Joined'] = true;
+            datas.push(doc['_id']);
+        } else {
+            doc['_id']['Joined'] = false;
+        }
+
+    }
+
+    console.log(datas);
+    res.render('Dashboardview', { 'data': users, 'data2': datas });
 });
+
+
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////
-
-
-
-
-
 //admin
 router.get("/Dashboardadmin", authRole('admin'), async function(req, res) {
         const client = new MongoClient(uri);

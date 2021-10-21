@@ -7,6 +7,7 @@
         "start": "node ./bin/www"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.4",
         "accesscontrol": "^2.2.1",
         "assert": "^2.0.0",
         "author": "^1.0.0",
@@ -28,6 +29,7 @@
         "express-messages": "^1.0.1",
         "express-session": "^1.17.2",
         "express-validator": "^6.12.1",
+        "font-awesome": "^4.7.0",
         "git": "^0.1.5",
         "http-errors": "~1.6.3",
         "install": "^0.13.0",
