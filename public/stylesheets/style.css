@@ -478,6 +478,20 @@ th {
     cursor: pointer;
 }
 
+.buttonblock {
+    background-color: #797a79;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 15px 5px;
+    cursor: pointer;
+    display: block;
+}
+
 .container {
     text-align: left;
     margin: auto;
@@ -526,4 +540,10 @@ div.flex-col {
 .fa,
 .fas {
     font-weight: 900;
+}
+
+.ui-jqgrid .ui-btn.ui-btn-blue {
+    color: #004085;
+    border-color: #007bff;
+    background: #e1f3f6;
 }

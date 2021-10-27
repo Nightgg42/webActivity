@@ -65,6 +65,7 @@
                 <th>สถานที่</th>
                 <th>ชั่วโมงกิจกรรม</th>
                 <th>จำนวนคนที่เข้าร่วม</th>
+                <th colspan="3"></th>
             </tr>
             <tr>
                 <% data.forEach(function(data){%>
@@ -88,7 +89,12 @@
                     </td>
                     <td>
                         <form method="post" action="/delete/<%= data.No %>">
-                            <button class='button' type="submit" onclick="return confirm('ยืนยันที่จะลบหรือไม่');">ลบกิจกรรม</button></form>
+                            <%if(data.count>0){%>
+                                <button class='buttonblock' type="button" onclick="return alert('กิจกรรมมีผู้เข้าร่่วมแล้วไม่สามารถลบรายการได้');">ลบกิจกรรม</button>
+                                <%}else{%>
+                                    <button class='button' type="submit" onclick="return confirm('ยืนยันที่จะลบหรือไม่');">ลบกิจกรรม</button>
+                                    <%}%>
+                        </form>
                         <td>
             </tr>
             <% });%>

@@ -75,6 +75,7 @@
                     <th>วันที่/เวลา</th>
                     <th style="text-align:center;">ชั่วโมงกิจกรรม</th>
                     <th style="text-align:center;">ได้เข้าร่วม</th>
+                    <th style="text-align:center;">แบบประเมิน</th>
 
                 </tr>
                 <% data2.forEach(function(data){%>
@@ -88,7 +89,7 @@
                     <td style="text-align:center;">
                         <% 
                         const diffTime = new Date(data.endTime).getTime() - new Date(data.startTime).getTime();                        
-                        let score = Math.floor(diffTime / 3600000);
+                        let score = (Math.floor(diffTime / 3600000) > 8.0) ? 8 : (Math.floor(diffTime / 3600000));
                         %>
                             <%=score%>
                     </td>
@@ -97,6 +98,12 @@
                             <i class="show-icon-true fas fa-check"></i>
                             <!-- / -->
                             <% } %>
+                    </td>
+                    <td style="text-align:center;">
+                        <a href=" /assessmentform/<%=data.ActivityName %>/<%=userID%>">
+                            <i class="fas fa-tasks"></i>
+                        </a>
+
                     </td>
 
                     </tr>

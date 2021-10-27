@@ -9,6 +9,7 @@ const { stringify } = require('querystring');
 const { count } = require('console');
 
 var passport = require('passport');
+const { start } = require('repl');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -19,7 +20,7 @@ router.get('/Dashboard', enSureAuthencated, authRole('Student'), async function(
     const client = new MongoClient(uri);
     await client.connect();
     const users = await client.db('LoginDB').collection('data').findOne({});
-    console.log(users)
+    console.log(users);
     res.render('Dashboard', { 'data': users });
 });
 /////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ router.get('/DashboardProfile', enSureAuthencated, authRole('Student'), async fu
     const client = new MongoClient(uri);
     await client.connect();
     const users = await client.db('LoginDB').collection('data').findOne({});
-    console.log(users)
+    console.log(users);
     res.render('DashboardProfile', { 'data': users });
 });
 /////////////////////////////////////////////////////////////
@@ -62,14 +63,8 @@ router.get('/Dashboardview', enSureAuthencated, authRole('Student'), async funct
     }
 
     console.log(datas);
-    res.render('Dashboardview', { 'data': users, 'data2': datas });
+    res.render('Dashboardview', { 'data': users, 'data2': datas, 'userID': userID });
 });
-
-
-
-
-
-
 
 
 /////////////////////////////////////////////////////////////
@@ -78,8 +73,8 @@ router.get("/Dashboardadmin", authRole('admin'), async function(req, res) {
         const client = new MongoClient(uri);
         await client.connect();
         const users = await client.db('LoginDB').collection('data').find({}).toArray();
-        await client.close()
-        console.log(users)
+        await client.close();
+        console.log(users);
         res.render("Dashboardadmin", { 'data': users });
     })
     /////////////////////////////////////////////////////////////////
@@ -92,34 +87,84 @@ router.get("/Dashboardadmin", authRole('admin'), async function(req, res) {
     //     res.render ( "EditDashboardadmin",{'data':users} );
     // })
     ////////////////////insert///////////////////////////////////
-router.get('/insert', async function(req, res, next) {
 
-    res.render("insert");
+function pad(num, size) {
+    num = num.toString();
+    while (num.length < size) num = "0" + num;
+    return num;
+}
+
+router.get('/insert', async function(req, res, next) {
+    let startDate = new Date();
+    let endDate = new Date();
+    //2018-06-12T19:30
+    let stardDateStr = startDate.getFullYear() + "-" + pad(startDate.getMonth() + 1, 2) + "-" + pad(startDate.getDate(), 2) + "T" + pad(startDate.getHours(), 2) + ":" + pad(startDate.getMinutes(), 2);
+    let endDateStr = endDate.getFullYear() + "-" + pad(endDate.getMonth() + 1, 2) + "-" + pad(endDate.getDate(), 2) + "T" + pad(endDate.getHours(), 2) + ":" + pad(endDate.getMinutes(), 2);
+    console.log(stardDateStr);
+    console.log(endDateStr);
+
+    const alarmMessage = '';
+    const Qplace = '';
+    const QActivity = '';
+
+    res.render("insert", { 'startDate': stardDateStr, 'endDate': endDateStr, 'alarmMessage': alarmMessage, 'Qplace': Qplace, 'QActivity': QActivity });
 
 });
 
 router.post('/insert', async function(req, res, next) {
     const client = new MongoClient(uri);
-    const diffTime = new Date(req.body.endTime).getTime() - new Date(req.body.startTime).getTime()
+    const diffTime = new Date(req.body.endTime).getTime() - new Date(req.body.startTime).getTime();
     const dateNow = new Date();
+    const actName = req.body.ActivityName;
+
+    console.log('Check Dup' + actName);
+
+    await client.connect();
+    const chkData = await client.db('LoginDB').collection('data').findOne({ ActivityName: actName });
+    await client.close();
+
+    let isDuplicateActivity = false;
+
+    console.log(chkData);
+    if (chkData != null) {
+        console.log("Check data not null");
+        isDuplicateActivity = true;
+    }
+
+    if (isDuplicateActivity) {
+        let startDate = new Date();
+        let endDate = new Date();
+        //2018-06-12T19:30
+        let stardDateStr = startDate.getFullYear() + "-" + pad(startDate.getMonth() + 1, 2) + "-" + pad(startDate.getDate(), 2) + "T" + pad(startDate.getHours(), 2) + ":" + pad(startDate.getMinutes(), 2);
+        let endDateStr = endDate.getFullYear() + "-" + pad(endDate.getMonth() + 1, 2) + "-" + pad(endDate.getDate(), 2) + "T" + pad(endDate.getHours(), 2) + ":" + pad(endDate.getMinutes(), 2);
+        console.log("is duplicate");
+        res.render("insert", { 'startDate': stardDateStr, 'endDate': endDateStr, 'alarmMessage': 'ชื่อกิจกรรมซ้ำ', 'Qplace': req.body.place, 'QActivity': req.body.ActivityName });
+        return;
+    }
 
     if (diffTime < 0) {
         return res.redirect('/insert');
     }
 
-    if (new Date(req.body.startTime).getTime() - new Date(req.body.endTime).getTime() < 0)
-        await client.connect();
-    await client.db('LoginDB').collection('data').insertOne({
-        No: Date.now(),
-        ActivityName: req.body.ActivityName,
-        startTime: req.body.startTime,
-        endTime: req.body.endTime,
-        place: req.body.place,
-        score: Math.floor(diffTime / 3600000),
-        count: 0
-    });
+    scores = (Math.floor(diffTime / 3600000) > 8.0) ? 8 : (Math.floor(diffTime / 3600000));
+    console.log("Score : " + scores);
 
-    await client.close();
+    if (diffTime > 0) {
+        await client.connect();
+        await client.db('LoginDB').collection('data').insertOne({
+            No: Date.now(),
+            ActivityName: req.body.ActivityName,
+            startTime: req.body.startTime,
+            endTime: req.body.endTime,
+            place: req.body.place,
+            score: scores,
+            count: 0
+        });
+        await client.close();
+    }
+
+
+
     res.redirect('/Dashboardadmin');
 
 });
@@ -132,16 +177,19 @@ router.get('/update/:id', async function(req, res, next) {
     const client = new MongoClient(uri);
     await client.connect();
     const users = await client.db('LoginDB').collection('data').findOne({ "No": id });
-    await client.close()
-    console.log(users)
+    await client.close();
+    console.log(users);
     res.render('update', { 'data': users })
 });
 
 ////////////////////update/////////////////////////////
 router.post('/update/:id', async(req, res) => {
+
         const id = parseInt(req.params.id);
         const client = new MongoClient(uri);
-        const diffTime = new Date(req.body.endTime).getTime() - new Date(req.body.startTime).getTime()
+        const diffTime = new Date(req.body.endTime).getTime() - new Date(req.body.startTime).getTime();
+        scores = (Math.floor(diffTime / 3600000) > 8.0) ? 8 : (Math.floor(diffTime / 3600000));
+        console.log("Score : " + scores);
         if (diffTime < 0) return res.redirect('/update/<%=data.No%>');
         await client.connect();
         await client.db('LoginDB').collection('data').updateOne({ 'No': id }, {
@@ -150,7 +198,7 @@ router.post('/update/:id', async(req, res) => {
                 startTime: req.body.startTime,
                 endTime: req.body.endTime,
                 place: req.body.place,
-                score: Math.floor(diffTime / 3600000),
+                score: scores,
             }
         });
         await client.close();
@@ -160,6 +208,7 @@ router.post('/update/:id', async(req, res) => {
 router.post('/delete/:id', async(req, res) => {
         const id = parseInt(req.params.id);
         const client = new MongoClient(uri);
+
         await client.connect();
         await client.db('LoginDB').collection('data').deleteOne({ 'No': id });
         await client.close();
@@ -172,7 +221,7 @@ router.get('/listweing/:activityname', async(req, res, next) => {
     const client = new MongoClient(uri);
     await client.connect();
     let weingList = ['bour', 'chiangrang', 'jomtong', 'kaluang', 'lor', 'namtao'];
-    let weingCount = [0, 0, 0, 0, 0, 0]
+    let weingCount = [0, 0, 0, 0, 0, 0];
 
     console.log(activityName);
     console.log(weingList.length);
@@ -279,7 +328,7 @@ router.get('/listname/:weingname/:activityname', async(req, res, next) => {
     console.log(datas);
     await client.close();
 
-    res.render('listname', { 'data': datas });
+    res.render('listname', { 'data': datas, 'weingName': weingName });
 
 })
 
@@ -315,6 +364,91 @@ router.get("/listname", function(req, res) {
     res.render("listname");
 });
 
+router.get("/assessmentsuccess/:activityName/:id", async function(req, res) {
+    const studentID = parseInt(req.params.id);
+    const activityName = req.params.activityName;
+
+    const client = new MongoClient(uri);
+    await client.connect();
+    const form = await client.db('LoginDB').collection('assessmentform').findOne({ "ActivityName": activityName, "StudentID": studentID });
+    await client.close()
+
+    console.log(form);
+
+    res.render("assessmentsuccess", { 'studentID': studentID, 'activityName': activityName, 'data': form });
+});
+
+router.get("/assessmentform/:activityName/:id", async function(req, res) {
+    const studentID = parseInt(req.params.id);
+    let activityName = String(req.params.activityName);
+    while (activityName.includes("_")) {
+        activityName = activityName.replace("_", " ");
+    }
+
+    console.log(studentID);
+    console.log(activityName);
+    //'Check mongodb ก่อนว่าเคยทำแบบประเมินไปแล้วหรือยัง
+    const client = new MongoClient(uri);
+    await client.connect();
+    const form = await client.db('LoginDB').collection('assessmentform').findOne({ "ActivityName": activityName, "StudentID": studentID });
+    console.log(form);
+    await client.close()
+
+    formIsDone = false;
+    if (form != null) {
+        console.log("Form is Done");
+        formIsDone = true;
+    }
+
+    if (formIsDone) {
+        res.redirect('/assessmentsuccess/' + activityName + '/' + studentID);
+    } else {
+        res.render("assessmentform", { 'studentID': studentID, 'activityName': activityName });
+    }
+
+});
+
+router.post('/saveassessment/:activityName/:id', async(req, res) => {
+    const studentID = parseInt(req.params.id);
+    const activityName = req.params.activityName;
+    const select1 = parseInt(req.body.es_id1);
+    const select2 = parseInt(req.body.es_id2);
+    const select3 = parseInt(req.body.es_id3);
+    const select4 = parseInt(req.body.es_id4);
+    const select5 = parseInt(req.body.es_id5);
+    const select6 = parseInt(req.body.es_id6);
+    const complain = req.body.es_complain;
+
+    console.log(studentID);
+    console.log(activityName);
+    console.log(select1);
+    console.log(select2);
+    console.log(select3);
+    console.log(select4);
+    console.log(select5);
+    console.log(complain);
+
+    const client = new MongoClient(uri);
+
+    await client.connect();
+    await client.db('LoginDB').collection('assessmentform').insertOne({
+        SaveTime: Date.now(),
+        StudentID: studentID,
+        ActivityName: activityName,
+        Q1: select1,
+        Q2: select2,
+        Q3: select3,
+        Q4: select4,
+        Q5: select5,
+        Q6: select6,
+        Complain: complain
+    });
+    await client.close();
+
+    res.redirect('/assessmentsuccess/' + activityName + '/' + studentID);
+
+})
+
 function enSureAuthencated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -327,9 +461,9 @@ function authRole(role) {
     return (req, res, next) => {
         if (req.user.role !== role) {
             res.status(401)
-            return res.send('Not allowed')
+            return res.send('Not allowed');
         }
-        next()
+        next();
     }
 }
 
