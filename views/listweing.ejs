@@ -30,9 +30,9 @@
             <li>
                 <a href="/Dashboardadmin">
                     <i class='bx bx-grid-alt'></i>
-                    <span class="links_name">Dashboard</span>
+                    <span class="links_name">หน้าหลัก</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
+                <span class="tooltip">หน้าหลัก</span>
             </li>
             <li>
                 <li class="profile">
@@ -52,11 +52,7 @@
         </ul>
     </div>
     <section class="home-section">
-
-        <h3>
-            <%=data[0].ActivityName %>
-        </h3>
-
+        <div class="text"> <%=data[0].ActivityName %> </div></br>
         <div class="text">เลือกเวียง </div>
         <table>
             <tr>
@@ -69,7 +65,7 @@
                         <tr>
                             <td>
                                 <a href="/listname/<%=data[0].WeingList[i]%>/<%=data[0].ActivityName%>">
-                                    <%=data[0].WeingList[i]%>
+                                    <%=data[0].WeingListThai[i]%>
                                 </a>
                             </td>
                             <td>
@@ -81,15 +77,13 @@
                             <tr>
                                 <td>
                                     <a href="/listname/all/<%=data[0].ActivityName%>">
-                                All
+                                รายชื่อทั้งหมด
                             </a>
                                 </td>
                                 <td>
                                     <%=countData%>
                                 </td>
                             </tr>
-
-
         </table>
         <div>
         </div>

@@ -478,6 +478,19 @@ th {
     cursor: pointer;
 }
 
+.button2 {
+    background-color: #cc2c2c;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 15px 5px;
+    cursor: pointer;
+}
+
 .buttonblock {
     background-color: #797a79;
     border: none;
@@ -514,12 +527,13 @@ div.flex-col {
     flex-direction: column;
     align-items: center;
     padding: 2rem;
+    padding-right: 17rem;
 }
 
 .labelName {
-    width: 240px;
+    width: 400px;
     text-align: end;
-    padding: 5px;
+    padding: 10px;
 }
 
 .detail {
