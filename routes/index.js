@@ -207,6 +207,10 @@ router.post('/update/:id', async(req, res) => {
         const id = parseInt(req.params.id);
         const client = new MongoClient(uri);
         const diffTime = new Date(req.body.endTime).getTime() - new Date(req.body.startTime).getTime();
+
+        let startDate = new Date(req.body.startTime);
+        let endDate =new Date(req.body.endTime);
+
         scores = (Math.floor(diffTime / 3600000) > 8.0) ? 8 : (Math.floor(diffTime / 3600000));
         console.log("Score : " + scores);
         if (diffTime < 0) return res.redirect('/update/<%=data.No%>');
@@ -214,8 +218,8 @@ router.post('/update/:id', async(req, res) => {
         await client.db('LoginDB').collection('data').updateOne({ 'No': id }, {
             "$set": {
                 ActivityName: req.body.ActivityName,
-                startTime: req.body.startTime,
-                endTime: req.body.endTime,
+                startTime: startDate,
+                endTime: endDate,
                 place: req.body.place,
                 score: scores,
             }
