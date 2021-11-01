@@ -56,7 +56,7 @@
         </div>
         <li>
             <a href="/Dashboard">
-                <i class='bx bx-heart'></i>
+                <i class='bx bx-left-arrow-circle'></i>
                 <span class="links_name">ย้อนกลับ</span>
             </a>
             <span class="tooltip">ย้อนกลับ</span>
@@ -67,17 +67,25 @@
         </ul>
     </div>
     <section class="home-section" style="padding-left:20px;padding-right: 20px;">
+        <form id="formqsys" name="formqsys" method="post" action="/saveassessment/<%=activityName%>/<%=studentID%>">
         <div class="text">ประเมินความพึงพอใจต่อการเข้าร่วมกิจกรรม </div>
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
                     กิจกรรม :
                     <%=activityName%>
-                        <br>
+                        <br> เพศ :
+                            <%if(data['S']==1){%>                               
+                               <input type="radio" name="es_sex" value="1" disabled checked /> ชาย 
+                                <input type="radio" name="es_sex" value="2" disabled /> หญิง 
+                             <%}else{%>
+                                <input type="radio" name="es_sex" value="1" disabled /> ชาย 
+                                <input type="radio" name="es_sex" value="2" disabled checked /> หญิง 
+                                     <%}%>                                         
                 </div>
                 
                 <div class="col-md-9"> <br />
-                    <form id="formqsys" name="formqsys" method="post" action="/saveassessment/<%=activityName%>/<%=studentID%>">
+                    
                         <table width="70%" border="1" align="center" cellpadding="0" cellspacing="0" class="table table-bordered table-hover">
                             <tr>
                                 <td width="75%" rowspan="2" align="center">
